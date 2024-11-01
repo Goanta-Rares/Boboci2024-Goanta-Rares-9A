@@ -7,10 +7,10 @@ import com.acmerobotics.roadrunner.control.PIDCoefficients;//Permite controlul p
 import com.acmerobotics.roadrunner.drive.DriveSignal;
 import com.acmerobotics.roadrunner.drive.MecanumDrive;//Sunt importate clasele necesare pentru controlul robotului, MecanumDrive ajuta la functionalitatea pentru controlul unui robot cu roti mecanum
 import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
-import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.followers.TrajectoryFollower;//clasa ce permite urmarirea traiectoriei
+import com.acmerobotics.roadrunner.geometry.Pose2d;//pozitia 2D a robotului
+import com.acmerobotics.roadrunner.trajectory.Trajectory;//reprezinta traiectoria robotului 
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;//permite contructia unei treiectorii 
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
@@ -22,26 +22,26 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;//permite controlul motoarelor
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.HardwareMap;//clase de hardware
 import com.qualcomm.robotcore.hardware.IMU;//ajuta la obtinerea informatilor despre orientarea robotului 
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;//permite monitorizarea starii bateriei
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;//unitatea de masura pentru unghiuri
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceRunner;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceRunner;// ajuat la constructia unei secvente pentru traiectorie
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.MAX_ACCEL;
-import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.MAX_ANG_ACCEL;
-import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.MAX_ANG_VEL;
-import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.MAX_VEL;
+import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.MAX_ACCEL;//valori stabilite pentru acceleratie
+import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.MAX_ANG_ACCEL;//valori stabilite pentru acceleratia ungiulara
+import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.MAX_ANG_VEL;//valori stabilite pentru viteza unghiulara
+import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.MAX_VEL;//valori stabilite pentru viteza
 import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.MOTOR_VELO_PID;
 import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.RUN_USING_ENCODER;
 import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.TRACK_WIDTH;
@@ -52,36 +52,36 @@ import static org.firstinspires.ftc.teamcode.drive.robot.DriveConstants.kV;
 
 @Config
 public class  SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);//folosit pentru miscarea robotului in plan orizontal
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);//folosit pentru miscarea de rotatie a robotului
 
-    public static double LATERAL_MULTIPLIER = 1;
+    public static double LATERAL_MULTIPLIER = 1;//valori pentru controlul miscarii laterale
 
-    public static double VX_WEIGHT = 1;
+    public static double VX_WEIGHT = 1;//controleaza cat contribuie fiecare diectie la miscarea finala 
     public static double VY_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
 
     private TrajectorySequenceRunner trajectorySequenceRunner;
 
 
-    private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
-    private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
+    private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);//limiteaza valoarea maxima a vitezei
+    private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);//limiteaza valoarea maxima a acceleratiei
 
     private TrajectoryFollower follower;
 
-    public DcMotorEx leftFront, leftRear, rightRear, rightFront;
+    public DcMotorEx leftFront, leftRear, rightRear, rightFront;//variabile care stoceaza componentele hardware ale robotului(pentru cele patru roti mecanum)
     private List<DcMotorEx> motors;
 
-    private IMU imu;
-    private VoltageSensor batteryVoltageSensor;
+    private IMU imu;//acesta este un senzor care masoara in ce directie se indreapta robotul 
+    private VoltageSensor batteryVoltageSensor;//monitorizeaza tensiunea bateriei
 
     private List<Integer> lastEncPositions = new ArrayList<>();
     private List<Integer> lastEncVels = new ArrayList<>();
 
-    public SampleMecanumDrive(HardwareMap hardwareMap) {
+    public SampleMecanumDrive(HardwareMap hardwareMap) {//acesta seteaza configuratiile hardware 
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
-        follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
+        follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,//initializeaza pentru urmarirea traiectoriei
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
@@ -92,7 +92,7 @@ public class  SampleMecanumDrive extends MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        imu = hardwareMap.get(IMU.class, "imu");
+        imu = hardwareMap.get(IMU.class, "imu");//pentru orientarea robotului
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
         imu.initialize(parameters);
@@ -109,7 +109,7 @@ public class  SampleMecanumDrive extends MecanumDrive {
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
-        for (DcMotorEx motor : motors) {
+        for (DcMotorEx motor : motors) {//ajuta la configurarea motoarelor
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
             motor.setMotorType(motorConfigurationType);
@@ -126,7 +126,7 @@ public class  SampleMecanumDrive extends MecanumDrive {
         }
 
 
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);//seteaza orientarea corecta a motoarelor
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
         List<Integer> lastTrackingEncPositions = new ArrayList<>();
         List<Integer> lastTrackingEncVels = new ArrayList<>();
@@ -139,8 +139,8 @@ public class  SampleMecanumDrive extends MecanumDrive {
         );
     }
 
-    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
-        return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
+    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {//permit constructia traiectorilor pentru robot
+        return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);//mentine viteza si acceleratia constanta
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, boolean reversed) {
@@ -159,8 +159,8 @@ public class  SampleMecanumDrive extends MecanumDrive {
         );
     }
 
-    public void turnAsync(double angle) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(
+    public void turnAsync(double angle) {//rotirea la un unghi specificat
+        trajectorySequenceRunner.followTrajectorySequenceAsync(//robotul asteapta pana la terminarea miscarii
                 trajectorySequenceBuilder(getPoseEstimate())
                         .turn(angle)
                         .build()
@@ -213,7 +213,7 @@ public class  SampleMecanumDrive extends MecanumDrive {
         return trajectorySequenceRunner.isBusy();
     }
 
-    public void setMode(DcMotor.RunMode runMode) {
+    public void setMode(DcMotor.RunMode runMode) {//permite modificarea modului de operare a motorului
         for (DcMotorEx motor : motors) {
             motor.setMode(runMode);
         }
@@ -257,7 +257,7 @@ public class  SampleMecanumDrive extends MecanumDrive {
 
     @NonNull
     @Override
-    public List<Double> getWheelPositions() {
+    public List<Double> getWheelPositions() {//prin encoder este monitorizata pozitia rotilor
         lastEncPositions.clear();
 
         List<Double> wheelPositions = new ArrayList<>();
@@ -270,7 +270,7 @@ public class  SampleMecanumDrive extends MecanumDrive {
     }
 
     @Override
-    public List<Double> getWheelVelocities() {
+    public List<Double> getWheelVelocities() {// monitorizata viteza rotilor prin encoder, care permite masurarea miscarii rotilor pentru calculul traiectorilor
         lastEncVels.clear();
 
         List<Double> wheelVelocities = new ArrayList<>();
@@ -292,12 +292,12 @@ public class  SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);//se verifica daca robotul respecta unghiul de orientare
     }
 
     @Override
     public Double getExternalHeadingVelocity() {
-        return (double) imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
+        return (double) imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;//se verifica viteza unghiulara la care se roteste robotul
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
