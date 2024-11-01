@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive.opmodetele;
 
-import static java.lang.Math.abs;
+import static java.lang.Math.abs;//Este importata functia abs pentru a se calcula valoarea absoluta
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
