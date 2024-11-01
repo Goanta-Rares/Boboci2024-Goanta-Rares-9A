@@ -48,22 +48,22 @@ public class LinearDriveMode extends LinearOpMode {
 
 
 
-            if (gamepad2.left_bumper) {
+            if (gamepad2.left_bumper) {//daca este folosit butonul L1 de pe controler, glisiera robotului se extinde
                 robot.crane.slidesDirection = 1;
                 robot.crane.setSlides(5);
-                if(robot.crane.slideEncoderLastPosition > robot.crane.slideEncoder.getVoltage()){
+                if(robot.crane.slideEncoderLastPosition > robot.crane.slideEncoder.getVoltage()){//valoarea tensiunii este folosita pentru a determina pozitia bratului
                     robot.crane.slideExtension -= 3.3;
                 }
-            } else if (gamepad2.right_bumper) {
+            } else if (gamepad2.right_bumper) {//Daca se apasa butonul de R1 de pe controler, atunci glisiera se va misca in directia opusa
                 robot.crane.slidesDirection = -1;
                 robot.crane.setSlides(5);
-                if(robot.crane.slideEncoderLastPosition < robot.crane.slideEncoder.getVoltage()){
+                if(robot.crane.slideEncoderLastPosition < robot.crane.slideEncoder.getVoltage()){//valoarea tensiunii este folosita pentru a determina pozitia bratului
                     robot.crane.slideExtension += 3.3;
                 }
             } else {
                robot.crane.setSlides(0);
             }
-            robot.crane.slideEncoderLastPosition = robot.crane.slideEncoder.getVoltage();
+            robot.crane.slideEncoderLastPosition = robot.crane.slideEncoder.getVoltage();//valoarea tensiunii este folosita pentru a determina pozitia bratului
 
 
             if(gamepad2.left_trigger > 0.1){
