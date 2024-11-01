@@ -67,25 +67,25 @@ public class LinearDriveMode extends LinearOpMode {
 
 
             if(gamepad2.left_trigger > 0.1){
-                robot.crane.craneTarget -= (int) calculateThrottle(gamepad2.left_trigger);
+                robot.crane.craneTarget -= (int) calculateThrottle(gamepad2.left_trigger);//Prin apasarea butoanelor L2 si R2 este ajustata pozitia gripperului, prin setarea craneTarget
             }
             else if(gamepad2.right_trigger > 0.1){
-                robot.crane.craneTarget += (int) calculateThrottle(gamepad2.right_trigger);
+                robot.crane.craneTarget += (int) calculateThrottle(gamepad2.right_trigger);//Prin apasarea butoanelor L2 si R2 este ajustata pozitia gripperului, prin setarea craneTarget
             }
-            robot.crane.motorCrane1.setPower(robot.crane.cranePower(robot.crane.craneTarget));
+            robot.crane.motorCrane1.setPower(robot.crane.cranePower(robot.crane.craneTarget));//Puterea motoarelor este ajustata de craneTarget 
             robot.crane.motorCrane2.setPower(robot.crane.cranePower(robot.crane.craneTarget));
 
             if (gamepad2.a) {
-                robot.crane.gripperDirection = 1;
+                robot.crane.gripperDirection = 1;//prin apasarea butonului a, gripperul se deschide
                 robot.crane.setGripper(1);
             }
             else if (gamepad2.b) {
-                robot.crane.gripperDirection = -1;
+                robot.crane.gripperDirection = -1;//prin apasarea butonului b, gripperul se inchide
                 robot.crane.setGripper(1);
             }
             else robot.crane.setGripper(0);
 
-            robot.drive.setWeightedDrivePower(new Pose2d((-gamepad1.left_stick_y),(-gamepad1.left_stick_x),(-gamepad1.right_stick_x)));
+            robot.drive.setWeightedDrivePower(new Pose2d((-gamepad1.left_stick_y),(-gamepad1.left_stick_x),(-gamepad1.right_stick_x)));//prin left stick y se controleaza miscarea inainte si inapoi, prin left stick x se controleaza miscarea laterala iar prin right stick x se controleaza rotatia 
 
 
 
@@ -94,7 +94,7 @@ public class LinearDriveMode extends LinearOpMode {
 
 
 
-            telemetry.addData("crane target: ", robot.crane.craneTarget);
+            telemetry.addData("crane target: ", robot.crane.craneTarget);//sunt afisate informatii referitoare la pozitia bratelor, la senzori si la starea robotului
                 telemetry.addData("right trigger: ", gamepad2.right_trigger);
                 telemetry.addData("encoder value: ", robot.crane.slideEncoder.getVoltage());
                 telemetry.addData("last position ", robot.crane.slideEncoderLastPosition);
